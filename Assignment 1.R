@@ -1,32 +1,15 @@
----
-title: "PA1_template.Rmd"
-author: "Zack Capozzi"
-date: "March 27, 2016"
-output: html_document
----
+setwd("C:\\Users\\zcapozzi002\\Documents\\Misc (Private)\\Hopkins Coursera\\Reproducible Research\\RepData_PeerAssessment1")
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(fig.path = "figures/ReproducibleResearch-plot", dev='png')
-```
-
-# R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 # Loading and preprocessing the data
 
-```{r Loading and preprocessing the data}
-download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip", "activity.zip")
 unzip("activity.zip")
 raw_data <- read.csv("activity.csv")
 data <- subset(raw_data, !is.na(raw_data$steps))
-```
+summary(data)
 
 # What is mean total number of steps taken per day?
-```{r }
+
 total_steps_per_day <- aggregate(raw_data$steps, by=list(raw_data$date), FUN=sum)
 names(total_steps_per_day) = c('Date','TotalSteps')
 
@@ -39,10 +22,9 @@ mean_steps <- mean(total_steps_per_day$TotalSteps)
 print(paste("Calculated mean steps per day: ",mean_steps))
 median_steps <- median(total_steps_per_day$TotalSteps)
 print(paste("Calculated median steps per day: ",median_steps))
-```
 
 # What is the average daily activity pattern?
-```{r }
+
 steps_by_interval <- aggregate(data$steps, by=list(data$interval), FUN=mean)
 names(steps_by_interval) = c('Interval', 'AvgSteps')
 plot(steps_by_interval)
@@ -50,10 +32,9 @@ plot(steps_by_interval)
 maxSteps <- steps_by_interval[steps_by_interval$AvgSteps == max(steps_by_interval$AvgSteps),]
 print(paste("The interval which, on average, has the most steps daily: ", maxSteps$Interval))
 
-```
 
 # Imputing missing values
-```{r }
+
 missing <- nrow(subset(raw_data, is.na(raw_data$steps)))
 print(paste("There are", missing, "rows that have invalid or missing step counts."))
 
@@ -66,13 +47,8 @@ print(paste("After imputation, there are", new_missing, "rows that have invalid 
 imputed_data <- subset(imputed_data, select=c('interval', 'steps', 'date'))
 summary(imputed_data)
 
-```
+# Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-# Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. 
-
-### Do these values differ from the estimates from the first part of the assignment? 
-### What is the impact of imputing missing data on the estimates of the total daily number of steps?
-```{r }
 imputed_steps_per_day <- aggregate(imputed_data$steps, by=list(imputed_data$date), FUN=sum)
 names(imputed_steps_per_day)<- c('date', 'steps')
 hist(imputed_steps_per_day$steps)
@@ -82,13 +58,11 @@ print(paste("The (imputed) median number of steps per day is", round(median(impu
 
 print(paste("The original mean was",mean_steps,", the imputed mean was",mean(imputed_steps_per_day$steps)))
 print(paste("The original median was",median_steps,", the imputed median was",median(imputed_steps_per_day$steps)))
-print("The method I've used to impute values reduces the impact of missing values, which made the median less than the mean.  Because of the method, the mean doesn't change, but the median is brought up.")
-```
+
 
 # Are there differences in activity patterns between weekdays and weekends?
-```{r }
+
 imputed_data$day_of_week <- weekdays(as.Date(imputed_data$date))
-imputed_data$day_type <- ''
 imputed_data[imputed_data$day_of_week=='Sunday' | imputed_data$day_of_week=='Saturday','day_type'] <- 'weekend'
 imputed_data[imputed_data$day_type!='weekend','day_type'] <- 'weekday'
 imputed_data$day_type <- as.factor(imputed_data$day_type)
@@ -105,4 +79,3 @@ plot(imputed_steps_by_interval[imputed_steps_by_interval$Day_Type=='weekday', 'I
 plot(imputed_steps_by_interval[imputed_steps_by_interval$Day_Type=='weekend', 'Interval'],
      imputed_steps_by_interval[imputed_steps_by_interval$Day_Type=='weekend', 'AvgSteps'], 
      main="Weekend Steps by Interval",xlab='Interval', ylab='Avg Steps', type ="l")
-```
